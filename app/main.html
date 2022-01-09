@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="../node_modules/@sweetalert2/theme-dark/dark.css">
+  <link rel="stylesheet" href="../node_modules/izitoast/dist/css/iziToast.min.css">
+  <link rel="stylesheet" href="../node_modules/pretty-checkbox/dist/pretty-checkbox.css">
+  <title>Lyrixx</title>
+</head>
+<body id="body">
+  <div class="page-loader" id="page-loader">
+    <img src="assets/img/logo.svg" id="pulsing-logo">
+    <div class="update-info" id="update-info">
+      <span id="update-state">Installing Update...</span>
+      <img src="assets/img/internet-loading.svg" id="update-loader">
+      <div class="update-bar" id="update-bar">
+        <div class="update-fill" id="update-fill"></div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-box">
+      <img src="assets/img/logo.svg" alt class="logo">
+      <span class="title">Lyrixx</span>
+      <div class="menu">
+        <div class="extra-box-big" id="extra">Extra</div>
+        <img id="reload" src="assets/img/reload.svg">
+        <img id="login" src="assets/img/user.svg">
+        <img id="settings" src="assets/img/settings.svg">
+      </div>
+    </div>
+  </nav>
+  <div class="page">
+    <div class="content">
+      <div class="selection-container">
+        <div class="selection">
+          <img src="assets/img/left-arrow.svg" alt class="previous-selection" id="previous-selection">
+          <div class="workspace-container">
+            <div class="workspace" id="workspace">
+              <div class="music-search">
+                <div class="search-container">
+                  <input type="text" id="music-name-input" class="music-name-input" placeholder="Search Song" oninput="getSearchSuggestions()">
+                  <div class="search-button" id="search-button">Search</div>
+                </div>
+                <div class="search-suggestion-container" id="search-suggestion">
+                </div>
+                <div class="search-result-container" id="search-result-container">
+                </div>
+              </div>
+              <div class="lyrics-timer">
+                <div class="record-header">
+                  <span class="record-title" id="placeAMarker">Place a marker for every verse with <kbd class="record-key">space</kbd></span>
+                  <span class="wrong-lyrics" id="wrong-lyrics">Wrong Lyrics?</span>
+                </div>
+                <div class="marker-record">
+                  <button class="load-audio-button" id="load-audio">Load Audio</button>
+                  <button id="play-pause-button" class="play-pause-button" onclick="playSong()">
+                    <img src="assets/img/record.svg" alt class="play-pause-icon" id="play-pause-icon">
+                  </button>
+                  <div class="playbar" id="playbar">
+                    <div class="markers" id="markers">
+                    </div>
+                    <div class="playbar-fill" id="playbar-fill"></div>
+                    <div class="playbar-handle" id="playbar-handle"></div>
+                    <div id="waveform" class="waveform"></div>
+                  </div>
+                  <img src="assets/img/reload.svg" class="reload-markers" id="reload-markers">
+                </div>
+                <div class="lyrics-preview" id="lyrics-preview">
+                  <span class="lyrics-preview-text" id="lyrics-line-1"></span>
+                  <span class="lyrics-preview-text" id="lyrics-line-2" style="font-size: 22px; opacity: 100%;"></span>
+                  <span class="lyrics-preview-text" id="lyrics-line-3"></span>
+                  <span class="lyrics-preview-text" id="lyrics-line-4"></span>
+                  <span class="lyrics-preview-text" id="lyrics-line-5"></span>
+                </div>
+              </div>
+              <div class="video-settings">
+                <div class="option-container">
+                  <fieldset class="option-box option-background">
+                    <legend class="option-title" id="background">Background</legend>
+                    <div class="option-custom-background">
+                      <div class="pretty p-svg p-curve p-smooth">
+                        <input type="checkbox" id="change-bg-checkbox">
+                        <div class="state p-info">
+                          <svg class="svg svg-icon" viewBox="0 0 20 20">
+                            <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z" style="stroke: white;fill:white;"></path>
+                          </svg>
+                          <label></label>
+                        </div>
+                      </div>
+                      <span class="custom-bg-text" id="customBackgroundImage">Use custom background image</span>
+                      <div class="info-icon">
+                        &#x1F6C8;
+                        <div class="tooltip" id="standardBackgroundVideo">The default background is a blurred music video</div>
+                      </div>
+                    </div>
+                    <div class="change-background">
+                      <label id="change-bg-btn" for="bg-image-upload">Select Image</label>
+                      <input type="file" id="bg-image-upload" accept="image/*" style="display: none;" onchange="loadImage()">
+                      <span id="bg-filename"></span>
+                    </div>
+                  </fieldset>
+                  <fieldset class="option-box option-font">
+                    <legend class="option-title" id="font">Font</legend>
+                    <div class="font-family">
+                      <span id="fontFamily">Font Family</span>
+                      <select id="font-select">
+                        <option value="0" style="font-family: Ubuntu;">Ubuntu</option>
+                      </select>
+                    </div>
+                    <div class="font-style">
+                      <input type="text" list="font-size" value="100" id="font-size-input">
+                      <datalist id="font-size">
+                        <option value="80">px</option>
+                        <option value="90">px</option>
+                        <option value="100">px</option>
+                        <option value="110">px</option>
+                        <option value="120">px</option>
+                        <option value="130">px</option>
+                        <option value="140">px</option>
+                        <option value="150">px</option>
+                        <option value="160">px</option>
+                      </datalist>
+                      <select id="font-style">
+                        <option value="0" id="bold">Bold</option>
+                        <option value="1" id="normal">Normal</option>
+                        <option value="2" id="italic">Italic</option>
+                        <option value="3" id="boldAndItalic">Bold and Italic</option>
+                      </select>
+                    </div>
+                  </fieldset>
+                  <fieldset class="option-box option-text">
+                    <legend class="option-title" id="text">Text</legend>
+                    <div class="text-color">
+                      <div class="color-picker-hover" id="color-preview">
+                        <div class="color-picker-container">
+                          <div id="color-picker"></div>
+                        </div>
+                      </div>
+                      <span id="textColor">Text Color</span>
+                    </div>
+                    <div class="text-shadow">
+                      <div class="pretty p-svg p-curve p-smooth" style="margin: 15px;">
+                        <input type="checkbox" id="change-bg-checkbox" checked>
+                        <div class="state p-info">
+                          <svg class="svg svg-icon" viewBox="0 0 20 20">
+                            <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z" style="stroke: white;fill:white;"></path>
+                          </svg>
+                          <label></label>
+                        </div>
+                      </div>
+                      <span id="textDropshadow">Text Dropshadow</span>
+                    </div>
+                  </fieldset>
+                  <fieldset class="option-box option-extra">
+                    <legend class="option-title">Extra</legend>
+                    <div class="extra-container">
+                      <div class="intrumental-container">
+                        <div class="intrumental-switch-container extra-disabled-1" id="extra-feature-1">
+                          <div class="instrumental-switch-container-self">
+                            <div class="pretty p-switch p-fill extra-switch">
+                              <input type="checkbox" id="instrumental-switch">
+                              <div class="state">
+                                  <label></label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="extra-box">Extra</div>
+                        </div>
+                        <img src="assets/img/extra.svg" class="extra-icon">
+                        <span class="intrumental-text" id="instrumentalVersion">Intrumental Version</span>
+                      </div>
+                    </div>
+                  </fieldset>
+                  <fieldset class="option-box">
+                    <legend class="option-title" id="customAudio">Custom Audio</legend>
+                    <div class="custom-audio">
+                      <div class="custom-audio-text">
+                        <div class="upload-custom-switch-container extra-disabled-2" id="extra-feature-2">
+                          <div class="upload-custom-switch-container-self" style="width: 54px;">
+                            <div class="pretty p-switch p-fill extra-switch">
+                              <input type="checkbox" id="audio-switch">
+                              <div class="state">
+                                  <label></label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="extra-box" style="padding: 5px 0px; width: 54px;">Extra</div>
+                        </div>
+                        <img src="assets/img/extra.svg" class="extra-icon">
+                        <span id="useCustomAudio">Use Custom Audio</span>
+                      </div>
+                      <div class="custom-audio-upload extra-disabled-3" id="extra-feature-3">
+                        <div class="custom-audio-upload-btn">
+                          <label id="custom-audio-upload-button" for="custom-audio-upload">Select Custom Audio</label>
+                          <input type="file" id="custom-audio-upload" accept=".mp3,audio/*" style="display: none;" onchange="loadCustomAudio()">
+                        </div>
+                        <div class="extra-box-backdrop">
+                          <div class="extra-box extra-custom-audio">Extra</div>
+                        </div>
+                      </div>
+                      <span class="audio-filename" id="audio-filename"></span>
+                    </div>
+                  </fieldset>
+                  <fieldset class="option-box">
+                    <legend class="option-title" id="videoSettings">Video Settings</legend>
+                    <div class="option-video-settings">
+                      <div class="video-framerate">
+                        <span id="videoFramerate">Video Framrate</span>
+                        <select id="fps-select">
+                          <option value="0">30</option>
+                          <option value="1">60</option>
+                        </select>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div class="blocked-settings" id="blocked-settings">
+                  <img src="assets/img/warning.svg">
+                  <span id="videoIsGenerating">Video is generating. Settings can't be changed anymore.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src="assets/img/right-arrow.svg" alt class="next-selection" id="next-selection">
+        </div>
+      </div>
+      <div class="generate">
+        <div class="generate-box">
+          <div class="icon-container">
+            <img class="logo-icon" id="logo-icon" src="assets/img/logo.svg">
+          </div>
+          <br>
+          <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div><br>
+          <span class="progress-text" id="progress-text"></span><br>
+          <button class="btn download-btn" id="download-btn">Generate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="extra-modal" style="display: none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Lyrixx Extra</h2>
+        <span class="close" id="close-extra">×</span>
+      </div>
+      <div class="modal-body" id="extra-modal-body">
+        <div class="promo-title">
+          <h2>Lyrixx</h2>
+          <div class="extra-box-big" id="extra">Extra</div>
+        </div>
+        <div id="extra-pages" class="extra-pages">
+          <div class="promo-page" id="promo-page">
+            <div class="promo-container">
+              <div class="promo-box">
+                <video src="assets/videos/instrumental.webm" class="promo-video" loop autoplay></video>
+                <div class="promo-text-container">
+                  <h3 id="instrumental">Instrumental</h3>
+                  <span id="instrumentalFeature">The instrumental feature allows you to generate and use an instrumental version of the selected song.</span>
+                </div>
+              </div>
+              <div class="promo-box">
+                <video src="assets/videos/custom-audio.webm" class="promo-video" loop autoplay></video>
+                <div class="promo-text-container">
+                  <h3 id="customAudio2">Custom Audio</h3>
+                  <span id="customAudioFeature">With the custom audio feature you can import your own audio in all common audio formats.</span>
+                </div>
+              </div>
+              <div class="promo-box">
+                <video src="assets/videos/60-fps.webm" class="promo-video" loop autoplay></video>
+                <div class="promo-text-container">
+                  <h3 id="lang60fps">60 FPS</h3>
+                  <span id="lang60fpsFeature">When 60 FPS is selected Lyrixx will render the video in 60 FPS allowing an even smoother video.</span>
+                </div>
+              </div>
+            </div>
+            <div class="plans">
+              <div class="plan-box">
+                <div class="plan-type">
+                  <span id="monthly">Monthly</span>
+                </div>
+                <div class="plan-price">
+                  <span class="plan-price-amount" id="price-monthly">1.99€</span>
+                  <span class="plan-per-month" id="perMonth">per month</span>
+                  <span class="billing-period" id="billedMonthly"> • billed monthly</span>
+                </div>
+                <button id="continue-monthly">Continue</button>
+              </div>
+              <div class="plan-box">
+                <div class="plan-type">
+                  <span id="annually">Annually</span>
+                </div>
+                <div class="plan-price">
+                  <span class="plan-price-amount" id="price-annually">1.59€</span>
+                  <span class="plan-per-month" id="perMonth2">per month</span>
+                  <span class="billing-period" id="billedAnnually"> • billed annually</span>
+                </div>
+                <button id="continue-annually">Continue</button>
+              </div>
+            </div>
+          </div>
+          <div class="payment-page" style="display: none;" id="payment-page">
+            <div class="back-to-promo" id="back-to-promo">
+              <img src="assets/img/back.svg">
+              <span id="back">Back</span>
+            </div>
+            <div class="payment">
+              <div class="payment-box">
+              <h2 id="payment">Payment</h2>
+              <div class="payment-types">
+                <div class="payment-type-box payment-type-selected" id="payment-credit-card">
+                  <img src="assets/img/credit-card.svg">
+                  <span id="creditCard">Credit card</span>
+                </div>
+                <div class="payment-type-box" id="payment-paypal">
+                  <img src="assets/img/paypal.svg">
+                  <span id="paypal">PayPal</span>
+                </div>
+              </div>
+              <div class="continue-with">
+                <span id="payment-prompt">Click <strong>Subscribe now</strong> to continue with Stripe</span>
+                <img src="assets/img/continue.svg">
+              </div>   
+              </div>
+              <div class="summary-box">
+                <h2 id="summary">Summary</h2>
+                <div class="summary-monthly">
+                  <span id="payment-period">Monthly</span>
+                  <span id="payment-monthly">1.99€</span>
+                </div>
+                <div class="summary-total">
+                  <span id="total">Total</span>
+                  <span id="payment-total">1.99€</span>
+                </div>
+                <button class="subscribe-button" id="subscribe-button">Subscribe now</button>
+                <span class="cancel-anytime" id="cancelAnytime">Cancel anytime</span> 
+              </div>
+            </div>
+          </div>
+          <div class="sub-managment-page" id="sub-managment-page" style="display: none;">
+            <div class="billing-box">
+              <h3 id="currentPlan">Current Plan</h3>
+              <div class="billing-info" id="billing-info">
+              </div>
+              <h3 class="payment-method-title" id="paymentMethod">Payment Method</h3>
+              <div class="used-payment-method">
+                <img src="assets/img/credit-card.svg" id="payment-method-icon">
+                <span class="used-payment-method-text" id="payment-method"></span>
+                <span id="payment-email"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="extra-loading-container" id="extra-loading">
+          <div class="extra-loading">
+            <img src="assets/img/internet-loading.svg">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="login-modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="profile">Profile</h2>
+        <span class="close" id="close-login">×</span>
+      </div>
+      <div class="modal-body">
+        <div id="profile-content" class="profile-content">
+          <div id="user-login">
+            <h1 class="sign-in-title" id="signInToLyrixx">Sign in to Lyrixx</h1>
+            <div class="login-box" id="login-box">
+              <div class="login-inputs">
+                <input type="text" placeholder="Email" id="loginEmail">
+                <input type="password" placeholder="Password" id="loginPassword">
+              </div>
+              <div class="login-info">
+                <button id="signinButton">Sign in</button>
+                <span id="forgot-password-link">Forgot password?</span>
+              </div>
+              <div class="login-error" id="login-error"></div>
+              <div class="signin-or-register">
+                <p id="noAccount">Don't have an account? <a id="change-create-account">Create an account.</a></p>
+              </div>
+            </div>
+          </div>
+          <div id="user-register" style="display: none">
+            <h1 class="sign-in-title" id="createAccount">Create an account</h1>
+            <div class="login-box" id="register-box">
+              <div class="login-inputs">
+                <input type="text" placeholder="Username" id="registerUsername">
+                <input type="email" placeholder="Email address" id="registerEmail">
+                <input type="password" placeholder="Password" id="registerPassword">
+              </div>
+              <div class="login-agb">
+                <div>
+                  <div class="pretty p-svg p-curve p-smooth" style="margin-bottom: 10px;">
+                    <input type="checkbox" id="accept-agb">
+                    <div class="state">
+                      <svg class="svg svg-icon" viewBox="0 0 20 20">
+                        <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z" style="stroke: white;fill:white;"></path>
+                      </svg>
+                      <label></label>
+                    </div>
+                  </div>
+                </div>
+                <span id="acceptTOS">By clicking register, I agree to Lyrixx's Terms of Service and Privacy Policy</span>
+              </div>
+              <div class="login-error" id="register-error"></div>
+              <div class="login-info">
+                <button id="registerButton">Register</button>
+              </div>
+              <div class="signin-or-register">
+                <p id="alreadyAccount">Already got an account? <a id="change-signin">Sign in</a></p>
+              </div>
+            </div>
+          </div>
+          <div id="user-profile" style="display: none;">
+            <h1 class="sign-in-title" id="profile2">Profile</h1>
+            <div class="login-box">
+              <div class="login-inputs">
+                <span id="username">Username</span>
+                <div class="edit-profile-container">
+                  <input type="text" value="testusername" id="profile-username" disabled>
+                  <img src="assets/img/pen.svg" id="edit-username">
+                </div>
+                <span id="email">Email address</span>
+                <div class="edit-profile-container">
+                  <input type="email" id="profile-email" disabled>
+                  <img src="assets/img/pen.svg" id="edit-email">
+                </div>
+                <span id="password">Password</span>
+                <div class="edit-profile-container" id="edit-password-container">
+                  <input type="password" value="xxxxxxxxxxxxxxxx" disabled>
+                  <img src="assets/img/pen.svg" onclick="editPassword()" id="edit-password">
+                </div>
+              </div>
+              <div class="login-error" id="profile-error"></div>
+              <button class="sign-out-button" id="sign-out">Sign Out</button>
+            </div>
+          </div>
+          <div id="reset-password" style="display: none;">
+            <h1 class="sign-in-title" id="resetPassword">Reset Password</h1>
+            <div class="login-box">
+              <div class="login-inputs">
+                <input type="email" placeholder="Email address" id="reset-password-mail">
+              </div>
+              <button id="reset-password-button" class="reset-password-button">Reset</button>
+              <div class="login-error" id="reset-error"></div>
+              <div class="signin-or-register">
+                <p id="rememberPassword">Remember password? <a id="remember-password-link">Sign in</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="login-loading-container" id="login-loading">
+          <div class="login-loading">
+            <img src="assets/img/internet-loading.svg">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="settings-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="langSettings">Settings</h2>
+        <span class="close" id="close-settings">×</span>
+      </div>
+      <div class="modal-body">
+        <div class="settings-box">
+          <h3 id="theme">Theme</h3>
+          <div class="theme-slider">
+            <img src="assets/img/moon-phase-outline.svg" alt class="theme-icon">
+            <label class="switch">
+              <input type="checkbox" id="theme-slider" class="theme-input">
+              <span class="slider-round"></span>
+            </label>
+            <img src="assets/img/sun.svg" alt class="theme-icon">
+          </div>
+        </div>
+        <div class="settings-box">
+          <h3 id="language">Language</h3>
+          <div class="language-select">
+            <select id="language-select" class="language-dropdown">
+              <option value="en" class="translate" id="en">English</option>
+              <option value="de" class="translate" id="de">Deutsch</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-box">
+          <h3 id="temporaryFileFolder">Temporary File Folder</h3>
+          <div class="location-container">
+            <button class="change-folder" id="change-folder">Change</button>
+            <span class="folder-location" id="folder-location"></span>
+          </div>
+        </div>
+        <div class="settings-box">
+          <h3 id="deleteTemporaryData">Delete Temporary Data</h3>
+          <div class="delete-container">
+            <button class="delete-folder" id="delete-folder">Delete</button>
+            <span class="temp-size" id="temp-size"></span>
+          </div>
+        </div>
+        <div class="settings-box">
+          <h3 id="currency">Use Local Currency</h3>
+          <div class="currency-switch-container">
+            <label class="switch">
+              <input type="checkbox" id="currency-slider" class="currency-input" checked="checked">
+              <span class="slider-round currency-switch"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-render"></div>
+  <div class="dom-render" id="dom-render">
+    <div id="render-background" class="render-background"></div>
+    <span class="render-lyrics" id="render-lyrics"></span>
+  </div>
+  <div class="thumbnail-render" id="thumbnail-render">
+    <div class="thumbnail-background" id="thumbnail-background"></div>
+    <div class="thumbnail-info">
+      <span id="thumbnail-title">Title</span>
+      <div class="song-info-splitter"></div>
+      <span id="thumbnail-artist">Artist</span>
+    </div>
+  </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/extra.js"></script>
+    <script src="assets/js/language.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/update.js"></script>
+    <script src="assets/js/video-generator.js"></script>
+    <script src="../node_modules/sweetalert2/dist/sweetalert2.js"></script>
+</body>
+</html>
